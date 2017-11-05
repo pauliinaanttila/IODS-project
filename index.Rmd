@@ -1,5 +1,6 @@
 ---
 title: "IODS course project"
+author: "Pauliina Anttila"
 output:
   html_document:
     theme: cosmo
