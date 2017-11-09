@@ -3,4 +3,4 @@
 
 This course is all about finding the joy in doing science together. It's about learning to use open data sources with tools that are available to everyone. 
 
-[www.github.com/pauliinaanttila/IODS-project](www.github.com/pauliinaanttila/IODS-project)
+[https://www.github.com/pauliinaanttila/IODS-project](https://www.github.com/pauliinaanttila/IODS-project)
