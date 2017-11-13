@@ -1,7 +1,87 @@
-# Insert chapter 2 title here
+# Regression and model validation
 
-*Describe the work you have done this week and summarize your learning.*
+*This week we really got started with data wrangling and analysis with RStudio. I haven't been using RStudio before, so this all has been quite exciting and challenging. After a few hours of trial and error, I'm starting to learn the basic tricks about exploring and analyzing data in RStudio.*
 
-- Describe your work and results clearly. 
-- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods
-- Assume the reader has no previous knowledge of your data or the more advanced methods you are using  
+## Description of the dataset
+
+```{r}
+students2014 <- read.csv (file = "~/Documents/GitHub/IODS-project/data/learning2014.csv", header = TRUE, sep = ",") # reading a CSV file named learning2014 into R
+str(students2014) # exploring the structure of the data, gives the names and types of variables
+```
+
+```{r}
+dim(students2014) # exploring the dimensions of the data, contains 166 observations of 7 variables
+```
+
+**We are working with students2014 dataset this week. The dataset contains 166 students who took part in a course called Introduction to Social Statistics in fall 2014 and also attended the final exam. The variables collected to the dataset are gender, age, attitude, deep learning, strategic learning, surface learning and exam points. The attitude towards statistics and details concerning learning methods were gathered through a questionnaire.**
+
+## Graphical overview of the data
+
+```{r}
+pairs(students2014[-1], col = students2014$gender) # draws all possible scatter plots from the columns of a data frame, resulting in a scatter plot matrix
+```
+
+**This scatter plot matrix shows all the possible scatter plots from the columns of the students2014 data frame, but it's a bit tricky to interpret as such.**
+
+```{r}
+summary(students2014)
+```
+
+**The dataset includes 110 females and 56 males. The mean age of the studied population is 25.5 years. The youngest participant has been 17 years old and the oldest 55 years old. The points for attitude vary between 14 and 50 with a mean of 31.4. The exam points vary between 7 and 33 with a mean of 22.7. The means for deep, strategic and surface learning are 3.7, 3.1 and 2.8, respectively.**
+
+```{r}
+library(GGally)
+library(ggplot2)
+p <- ggpairs(students2014, mapping = aes(col = gender), lower = list(combo = wrap("facethist", bins = 20)))
+p
+```
+
+**The age of the studied population is not normally distributed, the mass of the distribution is concentrated to the left of the figure, i.e. the skewness is positive. Said simpler, in the studied population, the majority of the people are in their twenties, but there are a few people that are noticeably older as well.**
+
+**The distributions of attitude, strategic learning and surface learning are fairly normally distributed. The distributions of deep learning and points are concentrated to the right of the figure, i.e. skewness is negative. In the case of points, there are more students that have scored well in the examination compared to those who have not done so well.**
+
+**Male students seem to have a bit better exam points than female students. There is a mild negative correlation with age and points. Attitude seems to have a positive correlation with exam points. Strategic learning is advantageous in terms of having good exam points, surface learning has negative correlation with points.**
+
+## Analysis of the data with regression
+
+**Regression analysis is a statistical modelling method used to estimate the relationships among variables. The focus is on the relationship between a dependent variable (*here points*) and one or more independent variables (*here attitude, strategic learning and surface learning*).**
+
+```{r}
+my_model <- lm(points ~ attitude + stra + surf, data = students2014) # a multiple regression model where points is the dependent variable and attitude, strategic learning and surface learning are explanatory variables
+summary(my_model)
+```
+
+**In this example, the multiple regression model includes points as a dependent variable and attitude, strategic learning and surface learning as explanatory variables. The only variable that has a statistically significant relationship with points is attitude. The coefficient is 0.34 (p-value 1.93e-08) meaning that one gets better exam points with better attitude.**
+
+```{r}
+my_model2 <- lm(points ~ attitude, data = students2014)
+summary(my_model2)
+```
+
+**It seems that better attitude gives one better results in the exam measured by points.**
+
+**R-squared is a statistical measure of how close the data are to the fitted regression line. In general, a model fits the data well if the differences between the observed values and the model's predicted values are small and unbiased. In general, the higher the R-squared, the better the model fits your data. The values of R-squared are between 0 and 1 (0-100 %).**
+
+**The R-squared is moderately low here (0.19), but it is understandable given the nature of the study (any field that attempts to predict human behavior typically has R-squared values lower than 50%, humans are simply harder to predict than, say, physical processes.)**
+
+## Diagnostic plots
+
+```{r}
+plot(my_model2, which = c(1,2,5))
+```
+
+**A bit about diagnostic plots:**
+
+**Diagnostic plots are used to test the validity of models.**
+
+**1) Residuals vs Fitted values provides a method to explore residuals versus model predictions. With this method one can test the constant variance assumption. The constant variance assumption implies that the size of errors should not depend on the explanatory variables.**
+
+*In this example, the assumption is reasonable (the observations reasonably randomly spread).*
+
+**2) The QQ-plot of the residuals provides a method to explore the assumption that the errors of the model are normally distributed.**
+
+*The QQ-plot in this example is quite reasonable, even though in both ends the observations differ from the straight line. The normality assumption is reasonable here.*
+
+**3) Residuals versus leverage plot can help identify which observations have an unusually high impact.**
+
+*In this example, there are no observations that would have a markably higher leverage.*
