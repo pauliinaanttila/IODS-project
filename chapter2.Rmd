@@ -27,7 +27,7 @@ pairs(students2014[-1], col = students2014$gender) # draws all possible scatter 
 summary(students2014)
 ```
 
-**The dataset includes 110 females and 56 males. The mean age of the studied population is 25.5 years. The youngest participant has been 17 years old and the oldest 55 years old. The points for attitude vary between 14 and 50 with a mean of 31.4. The exam points vary between 7 and 33 with a mean of 22.7. The means for deep, strategic and surface learning are 3.7, 3.1 and 2.8, respectively.**
+**The dataset includes 110 females and 56 males. The mean age of the studied population is 25.5 years. The youngest participant has been 17 years old and the oldest 55 years old. The points for attitude vary between 1.4 and 5 with a mean of 3.14. The exam points vary between 7 and 33 with a mean of 22.7. The means for deep, strategic and surface learning are 3.7, 3.1 and 2.8, respectively.**
 
 ```{r}
 library(GGally)
@@ -51,7 +51,7 @@ my_model <- lm(points ~ attitude + stra + surf, data = students2014) # a multipl
 summary(my_model)
 ```
 
-**In this example, the multiple regression model includes points as a dependent variable and attitude, strategic learning and surface learning as explanatory variables. The only variable that has a statistically significant relationship with points is attitude. The coefficient is 0.34 (p-value 1.93e-08) meaning that one gets better exam points with better attitude.**
+**In this example, the multiple regression model includes points as a dependent variable and attitude, strategic learning and surface learning as explanatory variables. The only variable that has a statistically significant relationship with points is attitude. The coefficient is 3.4 (p-value 1.93e-08) meaning that one gets better exam points with better attitude.**
 
 ```{r}
 my_model2 <- lm(points ~ attitude, data = students2014)

@@ -18,9 +18,10 @@ learning2014$stra <- rowMeans(stra_columns)
 # rowMeans calculated for deep, surf and stra
 colnames(learning2014)
 colnames(learning2014)[57] <- "age"
-colnames(learning2014)[58] <- "attitude"
 colnames(learning2014)[59] <- "points"
 # column names changed
+learning2014$attitude <- learning2014$Attitude/10
+#attitude changed to Likert scale
 keep_columns <- c("gender", "age", "attitude", "deep", "stra", "surf", "points")
 learning2014_analysis <- select(learning2014, one_of(keep_columns))
 # columns necessary for the analysis chosen
