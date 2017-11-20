@@ -1,0 +1,245 @@
+---
+title: "Exercise 3, Data analysis"
+author: "Pauliina Anttila"
+date: "17 11 2017"
+output: html_document
+---
+
+# 3. Logistic regression
+
+## Description of the dataset
+
+**This week we are working with a joined dataset that contains two portuguese student alcohol consumption data sets. Originally, the data sets are found from the UCI Machine Learning Repository under the name "Student performance data set" (donated Nov 2014). The original data sets contains data about student performance in secondary education of two Portuguese schools in two distinct subjects: mathematics and Portuguese language. The data was collected by using school reports and questionnaires. We wrangled the data so that we combined the data sets (mathematics and Portuguese language).**
+
+The wrangled data set contains 382 observations of 35 variables. The variables include the following:
+
+1 school - student's school
+
+2 sex - student's sex
+
+3 age - student's age
+
+4 address - student's home address type
+
+5 famsize - family size
+
+6 Pstatus - parent's cohabitation status
+
+7 Medu - mother's education
+
+8 Fedu - father's education
+
+9 Mjob - mother's job
+
+10 Fjob - father's job
+
+11 reason - reason to choose this school
+
+12 guardian - student's guardian
+
+13 traveltime - home to school travel time
+
+14 studytime - weekly study time 
+
+15 failures - number of past class failures 
+
+16 schoolsup - extra educational support
+
+17 famsup - family educational support
+
+18 paid - extra paid classes within the course subject (Math or Portuguese)
+
+19 activities - extra-curricular activities
+
+20 nursery - attended nursery school
+
+21 higher - wants to take higher education
+
+22 internet - Internet access at home
+
+23 romantic - with a romantic relationship
+
+24 famrel - quality of family relationships 
+
+25 freetime - free time after school 
+
+26 goout - going out with friends
+
+27 Dalc - workday alcohol consumption
+
+28 Walc - weekend alcohol consumption
+
+29 health - current health status 
+
+30 absences - number of school absences 
+
+31 G1 - first period grade
+
+32 G2 - second period grade 
+
+33 G3 - final grade 
+
+34 alc_use - the average of alcohol consumption on weekdays and weekends
+
+35 high_use - TRUE if "alc_use is higher than 2"
+
+```{r}
+alc <- read.csv (file = "~/Documents/GitHub/IODS-project/data/alc.csv", header = TRUE, sep = ",", dec = ".") # reading data into R
+library(dplyr)
+colnames(alc) # printing out the names of the variables
+```
+
+```{r}
+dim(alc) # there are 382 observations of 35 variables in the data
+```
+
+## Exploring the data set
+
+### My hypotheses:
+
+*1. Older students consume high amounts of alcohol more often than younger ones.*
+
+*2. Those who have high use of alcohol tend to fail more often.*
+
+*3. Those who have extra-curricular activities consume less alcohol.*
+
+*4. Those who want to take higher education consume less alcohol.*
+
+**1. Age and alcohol consumption:**
+
+```{r}
+library(ggplot2)
+p1 <- ggplot(alc, aes(x = high_use, y = age))
+p1 + geom_boxplot() + ylab("age")
+```
+
+
+```{r}
+t1 <- table(alc$high_use, alc$age) # crosstabulation of "high_use" and "age"
+t1
+```
+
+**According to the boxplots and crosstabulation, it seems that older students consume high amounts of alcohol more often than the younger ones.**
+
+**2. Alcohol consumption and failures:**
+
+```{r}
+t2 <- table(alc$high_use, alc$failures) # crosstabulation of "high_use" and "failures"
+t2
+```
+
+```{r}
+counts <- table(alc$high_use, alc$failures)
+barplot(counts, main="High alcohol use and failures",
+  xlab="Failures",
+ 	legend = rownames(counts), beside=TRUE)
+```
+
+Number of failures in the x-axis and count of students on the y-axis. Grouped by "high_use" (either TRUE or FALSE).
+
+**Only a small proportion of students have failed and the absolute counts of failures are fairly similar in both groups (those who use high amounts of alcohol vs those who do not). It is to be noted, that there is a lot more students in the latter group (268 vs 114).**
+
+**3. Alcohol consumption and activities:**
+
+```{r}
+t3 <- table(alc$high_use, alc$activities)
+t3
+```
+```{r}
+counts <- table(alc$high_use, alc$activities)
+barplot(counts, main="High alcohol use and activities",
+  xlab="Activities",
+ 	legend = rownames(counts), beside=TRUE)
+```
+
+**The proportion of students who consume high amounts of alcohol is bigger in the group that has no activities.**
+
+**4. Alcohol consumption and the urge to take higher education:**
+
+```{r}
+t4 <- table(alc$high_use, alc$higher)
+t4
+```
+```{r}
+counts <- table(alc$high_use, alc$higher)
+barplot(counts, main="High alcohol use and the urge to take higher education",
+  xlab="The urge to take higher education",
+ 	legend = rownames(counts), beside=TRUE)
+```
+
+**The majority of the students want to take higher education.**
+
+## Analysis with logistic regression
+
+```{r}
+my_model <- glm (formula = high_use ~ age + failures + activities + higher, data = alc, family ="binomial") # Logistic regression model with high_use as target variable and age, failures, activities and higher education target as explanatory variables.
+summary(my_model)
+```
+
+```{r}
+coef(my_model) # coefficients of the model
+```
+
+```{r}
+OR <- coef(my_model) %>% exp # computing odds ratios
+CI <- confint(my_model) %>% exp # computing confidence intervals
+cbind(OR,CI) # printing ORs and CIs
+```
+
+**The only examined variable that is statistically significantly associated to high use of alcohol is failures. The odds ratio of failures is 1.55 with confidence interval of 1.06-2.29 (p-value 0.024). With high consumption of alcohol the odds of failing is 1.55 times higher than with smaller alcohol consumption.**
+
+**The previous data exploring and logistic regression model show similar trends with other variables, but they are not statistically significant. **
+
+## Exploring the predictive power of my model
+
+```{r}
+my_model2 <- glm(high_use ~ failures, data = alc, family = "binomial") # fitting the model with the only variable (failures) that had statistically significant relationship with high use of alcohol
+probabilities <- predict(my_model2, type = "response") # predicting the probability of high use
+alc <- mutate(alc, probability = probabilities) # adding the predicted probabilities to 'alc'
+alc <- mutate(alc, prediction = probability > 0.5) # using the probabilities to make a prediction of high_use
+table(high_use = alc$high_use, prediction = alc$prediction) # tabulation of the target variable versus the predictions
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+g <- ggplot(alc, aes(x = probability, y = high_use, col = prediction)) # initializing a plot of 'high_use' versus 'probability' in 'alc'
+g + geom_point() # defining the geom as points and drawing the plot
+```
+
+```{r}
+table(high_use = alc$high_use, prediction = alc$prediction) %>% prop.table() %>% addmargins() # tabulating the target variable versus the predictions
+```
+
+```{r}
+loss_func <- function(class, prob) {
+  n_wrong <- abs(class - prob) > 0.5
+  mean(n_wrong) 
+} # defining a loss function (mean prediction error)
+loss_func(class = alc$high_use, prob = alc$probability) # calling loss_func to compute the average number of wrong predictions in the (training) data
+```
+
+**The average amount of wrong predictions in the (training) data is 29,8%. The proportion is quite high but still better than pure quessing.**
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
