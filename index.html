@@ -142,13 +142,13 @@ $(document).ready(function () {
 <ul>
 <li><a href="#introduction-to-open-data-science">1. Introduction to Open Data Science</a></li>
 <li><a href="#regression-and-model-validation">2. Regression and model validation</a><ul>
-<li><a href="#description-of-the-dataset">Description of the dataset</a></li>
+<li><a href="#description-of-the-data-set">Description of the data set</a></li>
 <li><a href="#graphical-overview-of-the-data">Graphical overview of the data</a></li>
 <li><a href="#analysis-of-the-data-with-regression">Analysis of the data with regression</a></li>
 <li><a href="#diagnostic-plots">Diagnostic plots</a></li>
 </ul></li>
 <li><a href="#logistic-regression">3. Logistic regression</a><ul>
-<li><a href="#description-of-the-dataset-1">Description of the dataset</a></li>
+<li><a href="#description-of-the-data-set-1">Description of the data set</a></li>
 <li><a href="#exploring-the-data-set">Exploring the data set</a></li>
 <li><a href="#analysis-with-logistic-regression">Analysis with logistic regression</a></li>
 <li><a href="#exploring-the-predictive-power-of-my-model">Exploring the predictive power of my model</a></li>
@@ -166,8 +166,8 @@ $(document).ready(function () {
 <div id="regression-and-model-validation" class="section level1">
 <h1>2. Regression and model validation</h1>
 <p><em>This week we really got started with data wrangling and analysis with RStudio. I haven’t been using RStudio before, so this all has been quite exciting and challenging. After a few hours of trial and error, I’m starting to learn the basic tricks about exploring and analyzing data in RStudio.</em></p>
-<div id="description-of-the-dataset" class="section level2">
-<h2>Description of the dataset</h2>
+<div id="description-of-the-data-set" class="section level2">
+<h2>Description of the data set</h2>
 <pre class="r"><code>students2014 &lt;- read.csv (file = &quot;~/Documents/GitHub/IODS-project/data/learning2014.csv&quot;, header = TRUE, sep = &quot;,&quot;) # reading a CSV file named learning2014 into R
 str(students2014) # exploring the structure of the data, gives the names and types of variables</code></pre>
 <pre><code>## 'data.frame':    166 obs. of  7 variables:
@@ -279,8 +279,8 @@ summary(my_model2)</code></pre>
 </div>
 <div id="logistic-regression" class="section level1">
 <h1>3. Logistic regression</h1>
-<div id="description-of-the-dataset-1" class="section level2">
-<h2>Description of the dataset</h2>
+<div id="description-of-the-data-set-1" class="section level2">
+<h2>Description of the data set</h2>
 <p><strong>This week we are working with a joined dataset that contains two portuguese student alcohol consumption data sets. Originally, the data sets are found from the UCI Machine Learning Repository under the name “Student performance data set” (donated Nov 2014). The original data sets contains data about student performance in secondary education of two Portuguese schools in two distinct subjects: mathematics and Portuguese language. The data was collected by using school reports and questionnaires. We wrangled the data so that we combined the data sets (mathematics and Portuguese language).</strong></p>
 <p>The wrangled data set contains 382 observations of 35 variables. The variables include the following:</p>
 <p>1 school - student’s school</p>

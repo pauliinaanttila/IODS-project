@@ -7,7 +7,7 @@ output: html_document
 
 # 3. Logistic regression
 
-## Description of the dataset
+## Description of the data set
 
 **This week we are working with a joined dataset that contains two portuguese student alcohol consumption data sets. Originally, the data sets are found from the UCI Machine Learning Repository under the name "Student performance data set" (donated Nov 2014). The original data sets contains data about student performance in secondary education of two Portuguese schools in two distinct subjects: mathematics and Portuguese language. The data was collected by using school reports and questionnaires. We wrangled the data so that we combined the data sets (mathematics and Portuguese language).**
 

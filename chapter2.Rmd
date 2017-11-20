@@ -2,7 +2,7 @@
 
 *This week we really got started with data wrangling and analysis with RStudio. I haven't been using RStudio before, so this all has been quite exciting and challenging. After a few hours of trial and error, I'm starting to learn the basic tricks about exploring and analyzing data in RStudio.*
 
-## Description of the dataset
+## Description of the data set
 
 ```{r}
 students2014 <- read.csv (file = "~/Documents/GitHub/IODS-project/data/learning2014.csv", header = TRUE, sep = ",") # reading a CSV file named learning2014 into R
