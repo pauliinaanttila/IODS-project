@@ -9,7 +9,7 @@ output: html_document
 
 ## Description of the data set
 
-**This week we are working with a joined dataset that contains two portuguese student alcohol consumption data sets. Originally, the data sets are found from the UCI Machine Learning Repository under the name "Student performance data set" (donated Nov 2014). The original data sets contains data about student performance in secondary education of two Portuguese schools in two distinct subjects: mathematics and Portuguese language. The data was collected by using school reports and questionnaires. We wrangled the data so that we combined the data sets (mathematics and Portuguese language).**
+**This week we are working with a joined dataset that contains two Portuguese student alcohol consumption data sets. Originally, the data sets are found from the UCI Machine Learning Repository under the name "Student performance data set" (donated Nov 2014). The original data sets contain data about student performance in secondary education of two Portuguese schools in two distinct subjects: mathematics and Portuguese language. The data was collected by using school reports and questionnaires. We wrangled the data so that we combined the data sets (mathematics and Portuguese language).**
 
 The wrangled data set contains 382 observations of 35 variables. The variables include the following:
 
@@ -85,12 +85,15 @@ The wrangled data set contains 382 observations of 35 variables. The variables i
 
 ```{r}
 alc <- read.csv (file = "~/Documents/GitHub/IODS-project/data/alc.csv", header = TRUE, sep = ",", dec = ".") # reading data into R
-library(dplyr)
 colnames(alc) # printing out the names of the variables
 ```
 
 ```{r}
 dim(alc) # there are 382 observations of 35 variables in the data
+```
+
+```{r}
+str(alc)
 ```
 
 ## Exploring the data set
@@ -104,6 +107,7 @@ dim(alc) # there are 382 observations of 35 variables in the data
 *3. Those who have extra-curricular activities consume less alcohol.*
 
 *4. Those who want to take higher education consume less alcohol.*
+
 
 **1. Age and alcohol consumption:**
 
@@ -120,6 +124,7 @@ t1
 ```
 
 **According to the boxplots and crosstabulation, it seems that older students consume high amounts of alcohol more often than the younger ones.**
+
 
 **2. Alcohol consumption and failures:**
 
@@ -139,6 +144,7 @@ Number of failures in the x-axis and count of students on the y-axis. Grouped by
 
 **Only a small proportion of students have failed and the absolute counts of failures are fairly similar in both groups (those who use high amounts of alcohol vs those who do not). It is to be noted, that there is a lot more students in the latter group (268 vs 114).**
 
+
 **3. Alcohol consumption and activities:**
 
 ```{r}
@@ -153,6 +159,7 @@ barplot(counts, main="High alcohol use and activities",
 ```
 
 **The proportion of students who consume high amounts of alcohol is bigger in the group that has no activities.**
+
 
 **4. Alcohol consumption and the urge to take higher education:**
 
@@ -172,6 +179,7 @@ barplot(counts, main="High alcohol use and the urge to take higher education",
 ## Analysis with logistic regression
 
 ```{r}
+library(dplyr)
 my_model <- glm (formula = high_use ~ age + failures + activities + higher, data = alc, family ="binomial") # Logistic regression model with high_use as target variable and age, failures, activities and higher education target as explanatory variables.
 summary(my_model)
 ```
