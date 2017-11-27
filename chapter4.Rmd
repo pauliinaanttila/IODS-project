@@ -1,0 +1,169 @@
+---
+title: "IODS, Exercise 4 Data analysis"
+author: "Pauliina Anttila"
+date: "27 11 2017"
+output: html_document
+---
+
+# 4. Clustering and classification
+
+## Exploring the data
+
+**This week we are working with *Boston data* (a data set that is included in R, to be more precise, MASS package). The data deals with housing values in suburbs of Boston. The data includes 506 observations of 14 variables.**
+
+```{r}
+library(MASS)
+data(Boston) # loading the Boston data
+dim(Boston) # exploring the dimensions of the data
+```
+
+```{r}
+str(Boston) # exploring the structure of the data
+```
+
+**List of variables:**
+
+crim = per capita crime rate by town
+
+zn = proportion of residential land zoned for lots over 25,000 sq.ft
+
+indus = proportion of non-retail business acres per town
+
+chas = Charles River dummy variable (= 1 if tract bounds river; 0 otherwise)
+
+nox = nitrogen oxides concentration (parts per 10 million)
+
+rm = average number of rooms per dwelling
+
+age = proportion of owner-occupied units built prior to 1940
+
+dis = weighted mean of distances to five Boston employment centres
+
+rad = index of accessibility to radial highways
+
+tax = full-value property-tax rate per \$10,000
+
+ptratio = pupil-teacher ratio by town
+
+black = 1000(Bk - 0.63)^2 where Bk is the proportion of blacks by town
+
+lstat = lower status of the population (percent)
+
+medv = median value of owner-occupied homes in \$1000s
+
+
+**The sources of the data**
+
+*Harrison, D. and Rubinfeld, D.L. (1978) Hedonic prices and the demand for clean air. J. Environ. Economics and Management 5, 81–102.*
+
+*Belsley D.A., Kuh, E. and Welsch, R.E. (1980) Regression Diagnostics. Identifying Influential Data and Sources of Collinearity. New York: Wiley.*
+
+## Overview of the data
+
+```{r}
+library(corrplot)
+library(tidyverse)
+cor_matrix<-cor(Boston) %>% round(2)
+cor_matrix
+corrplot(cor_matrix, method="circle", type = "upper", cl.pos = "b", tl.pos = "d", tl.cex = 0.6)
+```
+
+**Above, you can see a correlation plot of the data. It seems, for example, that the index of accessibility to radial highways is strongly positively correlated with full-value property-tax rate. There seems to be a clear negative correlation between lower status of the population and median value of owner-occupied homes.**
+
+```{r}
+summary(Boston)
+```
+
+**Above, you can see summaries of the variables in the data. To mention a few interesting ones:**
+
+**- Per capita crime rate by town differs substantially between the towns with the minimum of 0.006 and the maximum of 89.0 (median 0.26).**
+
+**- Pupil-teacher ratio by town varies between 12.6-22.0 (median 19.05).**
+
+**- Lower status of the population (percent) varies between 1.7-38.0 (median 11.4).**
+
+## Standardizing the data set
+
+```{r}
+boston_scaled <- scale(Boston) # standardizing the data set
+summary(boston_scaled) # summary of the scaled data
+```
+
+**In the scaling, the column means were subtracted from the corresponding columns and the difference was divided with standard deviation. In the scaled data you can see that the means are now 0 for every variable. Scaling needs to be done so that we can perform the linear discriminant analysis.**
+
+```{r}
+boston_scaled <- as.data.frame(boston_scaled)
+bins <- quantile(boston_scaled$crim)
+crime <- cut(boston_scaled$crim, breaks = bins, include.lowest = TRUE, label = c("low","med_low","med_high","high")) # creating a categorical variable crime with 4 categories (low, med_low, med_high and high)
+
+boston_scaled <- dplyr::select(boston_scaled, -crim) # dropping the old 'crim' variable from the scaled data
+boston_scaled <- data.frame(boston_scaled, crime) # adding the new categorical value to scaled data
+
+n <- nrow(boston_scaled)
+n # number of rows is 506
+ind <- sample(n,  size = n * 0.8) # choosing randomly 80% of the rows
+train <- boston_scaled[ind,] # creating the train set
+test <- boston_scaled[-ind,] # creating the test set
+```
+
+## Fitting the linear discriminant analysis on the train set
+
+```{r}
+library(MASS)
+lda.fit <- lda(formula = crime ~., data = train) # fitting the LDA, the categorical crime rate as the target variable and all the other variables in the dataset as predictor values
+classes <- as.numeric(train$crime)
+plot(lda.fit, dimen = 2, col = classes)
+```
+
+**The linear discriminant analysis biplot above.**
+
+## Predicting with LDA
+
+```{r}
+crime_categories <- test$crime # saving the crime categories from the test set
+test <- dplyr::select(test, -crime) # taking the 'crime' variable away from the test set
+lda.pred <- predict(lda.fit, newdata = test) # predicting the classes with the LDA model on the test data
+table(correct = crime_categories, predicted = lda.pred$class) # cross tabulating the results of prediction with the crime categories from the test set
+```
+
+**From the cross tabulation above we can see that the model appears to predict the correct results reasonably well.**
+
+## K-means clustering
+
+```{r}
+library(MASS)
+data(Boston) # reloading the Boston data set
+boston_scaled <- scale(Boston) # standardizing the data set
+dist_eu <- dist(boston_scaled) # calculating the distances between the observations
+summary(dist_eu)
+```
+
+**The Euclidian distances calculated and summarized.**
+
+```{r}
+km <-kmeans(Boston, centers = 4) # running the k-means algorithm on the dataset, 4 was chosen to be the number of clusters
+pairs(Boston, col = km$cluster)
+```
+
+**This picture is too big and complicated to comprehend, so let's take only part of it for closer examination.**
+
+```{r}
+pairs(Boston[1:5], col = km$cluster)
+```
+
+**Now let's try to find out what is the optimal number of clusters. One way to determine the number of clusters is to look at how the total of within cluster sum of squares (WCSS) behaves when the number of cluster changes. When you plot the number of clusters and the total WCSS, the optimal number of clusters is when the total WCSS drops radically.**
+
+```{r}
+set.seed(123)
+k_max <- 10 # determining the maximum number of clusters
+twcss <- sapply(1:k_max, function(k){kmeans(Boston, k)$tot.withinss}) # calculating the total within sum of squares
+qplot(x = 1:k_max, y = twcss, geom = 'line') # visualizing the results
+```
+
+**The optimal number of clusters seems to be 2. Let's run the K-means algorithm again with this number of clusters:**
+
+```{r}
+km <-kmeans(Boston, centers = 2)
+pairs(Boston, col = km$cluster)
+pairs(Boston[1:5], col = km$cluster)
+```
