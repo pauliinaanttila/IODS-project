@@ -133,7 +133,8 @@ table(correct = crime_categories, predicted = lda.pred$class) # cross tabulating
 ```{r}
 library(MASS)
 data(Boston) # reloading the Boston data set
-boston_scaled <- scale(Boston) # standardizing the data set
+boston_scaled2 <- scale(Boston) # standardizing the data set
+boston_scaled2 <- as.data.frame(boston_scaled2)
 dist_eu <- dist(boston_scaled) # calculating the distances between the observations
 summary(dist_eu)
 ```
@@ -141,14 +142,14 @@ summary(dist_eu)
 **The Euclidian distances calculated and summarized.**
 
 ```{r}
-km <-kmeans(Boston, centers = 4) # running the k-means algorithm on the dataset, 4 was chosen to be the number of clusters
-pairs(Boston, col = km$cluster)
+km <-kmeans(boston_scaled2, centers = 4) # running the k-means algorithm on the dataset, 4 was chosen to be the number of clusters
+pairs(boston_scaled2, col = km$cluster)
 ```
 
 **This picture is too big and complicated to comprehend, so let's take only part of it for closer examination.**
 
 ```{r}
-pairs(Boston[1:5], col = km$cluster)
+pairs(boston_scaled2[1:5], col = km$cluster)
 ```
 
 **Now let's try to find out what is the optimal number of clusters. One way to determine the number of clusters is to look at how the total of within cluster sum of squares (WCSS) behaves when the number of cluster changes. When you plot the number of clusters and the total WCSS, the optimal number of clusters is when the total WCSS drops radically.**
@@ -156,14 +157,14 @@ pairs(Boston[1:5], col = km$cluster)
 ```{r}
 set.seed(123)
 k_max <- 10 # determining the maximum number of clusters
-twcss <- sapply(1:k_max, function(k){kmeans(Boston, k)$tot.withinss}) # calculating the total within sum of squares
+twcss <- sapply(1:k_max, function(k){kmeans(boston_scaled2, k)$tot.withinss}) # calculating the total within sum of squares
 qplot(x = 1:k_max, y = twcss, geom = 'line') # visualizing the results
 ```
 
 **The optimal number of clusters seems to be 2. Let's run the K-means algorithm again with this number of clusters:**
 
 ```{r}
-km <-kmeans(Boston, centers = 2)
-pairs(Boston, col = km$cluster)
-pairs(Boston[1:5], col = km$cluster)
+km <-kmeans(boston_scaled2, centers = 2)
+pairs(boston_scaled2, col = km$cluster)
+pairs(boston_scaled2[1:5], col = km$cluster)
 ```
