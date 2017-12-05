@@ -1,0 +1,178 @@
+---
+title: "Exercise 5 data analysis"
+author: "Pauliina Anttila"
+date: "5 12 2017"
+output: html_document
+---
+# 5. Dimensionality reduction techniques
+
+**This week we are working with the 'human' data. Before analysis, we wrangled the data.**
+
+**You can see data wrangling part here:** https://github.com/pauliinaanttila/IODS-project/blob/master/data/create_human.R. 
+
+**Here you can see the original data from the United Nations Development Programme:** http://hdr.undp.org/en/content/human-development-index-hdi.
+
+## Exploring the data:
+
+```{r}
+human <-read.csv(file = "~/Documents/GitHub/IODS-project/data/human.csv", header = TRUE, sep = ",", dec = ".", row.names=1) # reading the data into R
+```
+
+```{r}
+dim(human) # exporing the dimensions of the data
+```
+
+```{r}
+str(human) # eploring the structure of the data
+```
+
+**The dataset contains 155 observations of 8 variables. The data combines several indicators from most countries in the world. The variables include the following:**
+
+"Country" = Country name (as row names in the data)
+
+**About health and knowledge:**
+
+"GNI" = Gross National Income per capita
+
+"Life.Exp" = Life expectancy at birth
+
+"Edu.Exp" = Expected years of schooling 
+
+"Mat.Mor" = Maternal mortality ratio
+
+"Ado.Birth" = Adolescent birth rate
+
+**Empowerment:**
+
+"Parli.F" = Percetange of female representatives in parliament
+
+"Edu2.F" = Proportion of females with at least secondary education
+
+"Edu2.M" = Proportion of males with at least secondary education
+
+"Labo.F" = Proportion of females in the labour force
+
+"Labo.M" " Proportion of males in the labour force
+
+"Edu2.FM" = Edu2.F / Edu2.M
+
+"Labo.FM" = Labo2.F / Labo2.M
+
+## Overview of the data:
+
+```{r}
+library(GGally)
+library(ggplot2)
+ggpairs(human, lower = list(combo = wrap("facethist", bins = 20)))
+```
+
+**Expected years of schooling seem to been pretty normally distributed. Otherwise the distributions have considerable skewness, a positive one for Gross National Income per capita, maternal mortality ratio, adolescent birth rate and percetange of female representatives in parliament, and a negative one for the rest.**
+
+**It seems that maternal mortality and adolescent births have a positive correlation. Also life expectancy at birth and expected years of schooling have a positive correlation.**
+
+```{r}
+summary(human)
+```
+
+**Life expectancy at birth varies between 49.0 - 83.5 years with the median of 74.2. Expected years of schooling vary between 5.4 - 20.2 years with the median of 13.5. The maternal mortality ratio varies hugely, it ranges from 1.0 - 1100.0.**
+
+## Principal component analysis (PCA):
+
+**Now we are going to perform principal component analysis (PCA) on the not standardized 'human' data. It is statistical method used in dimension reduction.**
+
+```{r}
+pca_human <- prcomp(human)
+summary(pca_human)
+```
+
+**Above in the summary is shown the variability captured by the principal components.**
+
+```{r}
+biplot(pca_human, choices = 1:2, cex = c(0.8,1), col = c("grey40", "deeppink2")) # drawing a biplot of the principal component representation and the original variables
+```
+
+**A biplot displaying the observations by the first two principal components, along with arrows representing the original variables.**
+
+**Before standardizing the dataset, the variances are so different between the variables that it is difficult to interpret the PCA in a sensible manner. The GNI has more leverage in the unstandardized data because it has a huge variation in values.**
+
+##Standardizing the dataset and performing PCA again:
+
+```{r}
+human_std <- scale(human) # standardizing the dataset
+pca_human_std <- prcomp(human_std)
+summary(pca_human_std)
+```
+
+**After standardization, the variances of the variables are more alike.**
+
+```{r}
+biplot(pca_human_std, choices = 1:2, cex = c(0.8,1), col = c("grey40", "deeppink2"))
+```
+
+**Now we can truly see the connections between variables.**
+
+**It seems that maternal mortality ratio and adolescent birth rate have a high positive correlation (small angle between the arrows).**
+
+**Percentage of female representatives in parliament is highly positively correlated to the ratio of proportion of females vs males in the labour force.**
+
+**Life expectancy at birth, expected years of schooling and GNI are positively correlated.**
+
+# Interpretation of the first two principal component dimensions:
+
+**Factors contributing to PC1 are maternal mortality ratio and adolescent birth rate (arrows to the same direction).**
+
+**Variables contributing to PC2 are Parli.F and Labo.FM.**
+
+# Working with 'tea' dataset:
+
+```{r}
+library(FactoMineR)
+data(tea) # loading the 'tea' dataset from the package FactoMineR
+dim(tea)
+```
+
+```{r}
+str(tea)
+```
+
+```{r}
+colnames(tea)
+```
+
+**The 'tea' dataset has 300 observations of 36 variables concerning tea consumption (for example if tea is consumed during breakfast, lunch, dinner etc.).**
+
+**Let's create a bit smaller dataset:**
+
+```{r}
+keep_columns <- c("Tea", "How", "how", "sugar", "where", "resto", "pub")
+tea_selected <- tea[, keep_columns] # creating a smaller dataset with the selected columns
+
+```{r}
+dim(tea_selected)
+```
+
+**The new 'tea_selected' dataset contains 300 observations of 7 variables. Summary of the variables is seen below:**
+
+```{r}
+summary(tea_selected)
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+gather(tea_selected) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() 
+```
+
+### Multiple correspondence analysis with the 'tea' dataset:
+
+```{r}
+mca <- MCA(tea_selected, graph = FALSE)
+summary(mca)
+```
+
+```{r}
+mca <- MCA(tea_selected, graph = TRUE)
+```
+```{r}
+plot(mca, invisible=c(), habillage = "quali")
+```
