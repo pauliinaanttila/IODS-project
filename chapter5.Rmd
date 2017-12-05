@@ -117,13 +117,13 @@ biplot(pca_human_std, choices = 1:2, cex = c(0.8,1), col = c("grey40", "deeppink
 
 **Life expectancy at birth, expected years of schooling and GNI are positively correlated.**
 
-# Interpretation of the first two principal component dimensions:
+## Interpretation of the first two principal component dimensions:
 
 **Factors contributing to PC1 are maternal mortality ratio and adolescent birth rate (arrows to the same direction).**
 
 **Variables contributing to PC2 are Parli.F and Labo.FM.**
 
-# Working with 'tea' dataset:
+## Working with 'tea' dataset:
 
 ```{r}
 library(FactoMineR)
